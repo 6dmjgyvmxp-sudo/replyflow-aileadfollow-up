@@ -14,7 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      follow_up_emails: {
+        Row: {
+          body: string
+          created_at: string
+          day_offset: number
+          id: string
+          lead_id: string
+          opened_at: string | null
+          replied_at: string | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["email_status"]
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          day_offset: number
+          id?: string
+          lead_id: string
+          opened_at?: string | null
+          replied_at?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["email_status"]
+          subject: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          day_offset?: number
+          id?: string
+          lead_id?: string
+          opened_at?: string | null
+          replied_at?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["email_status"]
+          subject?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_emails_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +111,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      email_status: "pending" | "sent" | "opened" | "replied"
+      lead_status: "active" | "closed_won" | "closed_lost"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +239,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      email_status: ["pending", "sent", "opened", "replied"],
+      lead_status: ["active", "closed_won", "closed_lost"],
+    },
   },
 } as const
