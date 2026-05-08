@@ -6,6 +6,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { Check, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type Rule = { label: string; test: (p: string) => boolean };
+const RULES: Rule[] = [
+  { label: "At least 8 characters", test: (p) => p.length >= 8 },
+  { label: "One uppercase letter (A–Z)", test: (p) => /[A-Z]/.test(p) },
+  { label: "One lowercase letter (a–z)", test: (p) => /[a-z]/.test(p) },
+  { label: "One number (0–9)", test: (p) => /\d/.test(p) },
+  { label: "One symbol (e.g. !@#$%)", test: (p) => /[^A-Za-z0-9]/.test(p) },
+];
+
+function strengthScore(p: string) {
+  return RULES.reduce((n, r) => n + (r.test(p) ? 1 : 0), 0);
+}
+
+function strengthMeta(score: number) {
+  if (score <= 1) return { label: "Very weak", color: "bg-destructive", text: "text-destructive" };
+  if (score === 2) return { label: "Weak", color: "bg-orange-500", text: "text-orange-600" };
+  if (score === 3) return { label: "Fair", color: "bg-yellow-500", text: "text-yellow-600" };
+  if (score === 4) return { label: "Strong", color: "bg-green-500", text: "text-green-600" };
+  return { label: "Excellent", color: "bg-emerald-600", text: "text-emerald-700" };
+}
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
@@ -70,7 +93,8 @@ function ResetPasswordPage() {
               className="space-y-3 mt-6"
               onSubmit={async (e) => {
                 e.preventDefault();
-                if (password.length < 6) return toast.error("Password must be at least 6 characters.");
+                const score = strengthScore(password);
+                if (score < 4) return toast.error("Please meet at least 4 of the password requirements.");
                 if (password !== confirm) return toast.error("Passwords don't match.");
                 setBusy(true);
                 const { error } = await supabase.auth.updateUser({ password });
@@ -82,17 +106,82 @@ function ResetPasswordPage() {
             >
               <div>
                 <Label>New password</Label>
-                <Input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+                <Input
+                  type="password"
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  aria-describedby="password-requirements"
+                />
+                <PasswordStrength password={password} />
               </div>
               <div>
                 <Label>Confirm password</Label>
-                <Input type="password" required minLength={6} value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+                <Input
+                  type="password"
+                  required
+                  minLength={8}
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  aria-invalid={confirm.length > 0 && confirm !== password}
+                />
+                {confirm.length > 0 && confirm !== password && (
+                  <p className="mt-1 text-xs text-destructive">Passwords don't match.</p>
+                )}
+                {confirm.length > 0 && confirm === password && password.length > 0 && (
+                  <p className="mt-1 text-xs text-green-600 flex items-center gap-1">
+                    <Check className="h-3 w-3" /> Passwords match
+                  </p>
+                )}
               </div>
-              <Button className="w-full" disabled={busy}>{busy ? "Updating…" : "Update password"}</Button>
+              <Button
+                className="w-full"
+                disabled={busy || strengthScore(password) < 4 || password !== confirm}
+              >
+                {busy ? "Updating…" : "Update password"}
+              </Button>
             </form>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function PasswordStrength({ password }: { password: string }) {
+  const score = strengthScore(password);
+  const meta = strengthMeta(score);
+  const pct = (score / RULES.length) * 100;
+  return (
+    <div id="password-requirements" className="mt-2 space-y-2">
+      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+        <div
+          className={cn("h-full transition-all duration-300", password ? meta.color : "bg-transparent")}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">Password strength</span>
+        <span className={cn("font-medium", password ? meta.text : "text-muted-foreground")}>
+          {password ? meta.label : "—"}
+        </span>
+      </div>
+      <ul className="space-y-1 text-xs">
+        {RULES.map((r) => {
+          const ok = r.test(password);
+          return (
+            <li key={r.label} className="flex items-center gap-2">
+              {ok ? (
+                <Check className="h-3.5 w-3.5 text-green-600 shrink-0" />
+              ) : (
+                <X className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              )}
+              <span className={ok ? "text-foreground" : "text-muted-foreground"}>{r.label}</span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
