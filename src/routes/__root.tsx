@@ -77,10 +77,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "ReplyFlow — AI follow-ups for small business leads" },
       { name: "description", content: "ReplyFlow auto-writes friendly, human follow-up emails for every lead so deals don't slip through the cracks." },
       { property: "og:title", content: "ReplyFlow — AI follow-ups for small business leads" },
-      { property: "og:description", content: "Auto-write friendly follow-up sequences and track every lead." },
+      { property: "og:description", content: "ReplyFlow auto-writes friendly, human follow-up emails for every lead so deals don't slip through the cracks." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "ReplyFlow — AI follow-ups for small business leads" },
+      { name: "twitter:description", content: "ReplyFlow auto-writes friendly, human follow-up emails for every lead so deals don't slip through the cracks." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/0856e6f1-6785-4bae-80ae-fd20a8d6f8fd" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/0856e6f1-6785-4bae-80ae-fd20a8d6f8fd" },
     ],
     links: [
       {
