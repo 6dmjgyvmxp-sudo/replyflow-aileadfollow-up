@@ -112,7 +112,7 @@ export type Database = {
     }
     Enums: {
       email_status: "pending" | "sent" | "opened" | "replied"
-      lead_status: "active" | "closed_won" | "closed_lost"
+      lead_status: "active" | "closed_won" | "closed_lost" | "contacted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -241,7 +241,7 @@ export const Constants = {
   public: {
     Enums: {
       email_status: ["pending", "sent", "opened", "replied"],
-      lead_status: ["active", "closed_won", "closed_lost"],
+      lead_status: ["active", "closed_won", "closed_lost", "contacted"],
     },
   },
 } as const
