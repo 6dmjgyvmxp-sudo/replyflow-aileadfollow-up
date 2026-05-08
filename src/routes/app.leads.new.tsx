@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Sparkles, Mail } from "lucide-react";
+import { Sparkles, Mail, Send } from "lucide-react";
 
 export const Route = createFileRoute("/app/leads/new")({
   component: NewLead,
@@ -28,6 +28,7 @@ function NewLead() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
   const [drafts, setDrafts] = useState<DraftEmail[] | null>(null);
   const [form, setForm] = useState({ name: "", email: "", phone: "", businessContext: "", notes: "" });
 
@@ -57,11 +58,11 @@ function NewLead() {
     setDrafts((d) => d ? d.map((e, idx) => idx === i ? { ...e, [field]: value } : e) : d);
   };
 
-  const saveAll = async () => {
+  const saveAndSend = async (sendNow: boolean) => {
     if (!drafts) return;
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
-    setSaving(true);
+    if (sendNow) setSending(true); else setSaving(true);
     try {
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData.user?.id;
@@ -85,15 +86,30 @@ function NewLead() {
         body: e.body,
         scheduled_for: new Date(now.getTime() + e.day_offset * 24 * 60 * 60 * 1000).toISOString(),
       }));
-      const { error: insErr } = await supabase.from("follow_up_emails").insert(rows);
+      const { data: inserted, error: insErr } = await supabase
+        .from("follow_up_emails")
+        .insert(rows)
+        .select();
       if (insErr) throw insErr;
 
-      toast.success("Lead saved with follow-up sequence!");
+      if (sendNow) {
+        const day1 = inserted?.find((e) => e.day_offset === 1) ?? inserted?.[0];
+        if (!day1) throw new Error("Day 1 email not found");
+        const { data: sendRes, error: sendErr } = await supabase.functions.invoke("send-followup", {
+          body: { emailId: day1.id },
+        });
+        if (sendErr) throw sendErr;
+        if (sendRes?.error) throw new Error(sendRes.error);
+        toast.success("Email 1 sent! Day 3 and Day 7 emails are scheduled.");
+      } else {
+        toast.success("Lead saved with follow-up sequence!");
+      }
       navigate({ to: "/app/leads/$leadId", params: { leadId: lead.id } });
     } catch (err: any) {
       toast.error(err.message ?? "Could not save");
     } finally {
       setSaving(false);
+      setSending(false);
     }
   };
 
@@ -147,10 +163,19 @@ function NewLead() {
               </CardContent>
             </Card>
           ))}
-          <div className="flex gap-2">
-            <Button onClick={saveAll} disabled={saving}>{saving ? "Saving…" : "Save lead & sequence"}</Button>
-            <Button type="button" variant="outline" onClick={() => setDrafts(null)} disabled={saving}>Discard</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => saveAndSend(true)} disabled={saving || sending}>
+              <Send className="h-4 w-4 mr-1" />
+              {sending ? "Sending…" : "Send sequence"}
+            </Button>
+            <Button variant="secondary" onClick={() => saveAndSend(false)} disabled={saving || sending}>
+              {saving ? "Saving…" : "Save as draft"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setDrafts(null)} disabled={saving || sending}>Discard</Button>
           </div>
+          <p className="text-xs text-muted-foreground">
+            "Send sequence" emails Day 1 immediately via Resend and schedules Day 3 & Day 7. Lead status will update to "Contacted".
+          </p>
         </div>
       )}
     </div>
