@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "ReplyFlow <onboarding@resend.dev>",
+        from: "ReplyFlow <noreply@replyflowai.app>",
         to: [lead.email],
         subject: email.subject,
         html,
