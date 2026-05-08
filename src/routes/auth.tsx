@@ -17,6 +17,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [mode, setMode] = useState<"tabs" | "forgot">("tabs");
   useEffect(() => {
     if (!loading && user) navigate({ to: "/app" });
   }, [user, loading, navigate]);
@@ -35,23 +36,29 @@ function AuthPage() {
       </div>
       <div className="flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
-          <h1 className="text-2xl font-bold">Welcome</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sign in or create your account.</p>
-          <Tabs defaultValue="signin" className="mt-6">
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Sign up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signin"><SignInForm /></TabsContent>
-            <TabsContent value="signup"><SignUpForm /></TabsContent>
-          </Tabs>
+          {mode === "forgot" ? (
+            <ForgotPasswordForm onBack={() => setMode("tabs")} />
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold">Welcome</h1>
+              <p className="text-sm text-muted-foreground mt-1">Sign in or create your account.</p>
+              <Tabs defaultValue="signin" className="mt-6">
+                <TabsList className="grid grid-cols-2 w-full">
+                  <TabsTrigger value="signin">Sign in</TabsTrigger>
+                  <TabsTrigger value="signup">Sign up</TabsTrigger>
+                </TabsList>
+                <TabsContent value="signin"><SignInForm onForgot={() => setMode("forgot")} /></TabsContent>
+                <TabsContent value="signup"><SignUpForm /></TabsContent>
+              </Tabs>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function SignInForm() {
+function SignInForm({ onForgot }: { onForgot: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -69,9 +76,60 @@ function SignInForm() {
       }}
     >
       <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-      <div><Label>Password</Label><Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+      <div>
+        <div className="flex items-center justify-between">
+          <Label>Password</Label>
+          <button type="button" onClick={onForgot} className="text-xs text-primary hover:underline">
+            Forgot password?
+          </button>
+        </div>
+        <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+      </div>
       <Button className="w-full" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</Button>
     </form>
+  );
+}
+
+function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+  return (
+    <div>
+      <h1 className="text-2xl font-bold">Reset your password</h1>
+      <p className="text-sm text-muted-foreground mt-1">
+        Enter your email and we'll send you a secure reset link.
+      </p>
+      {sent ? (
+        <div className="mt-6 space-y-3">
+          <div className="rounded-md border bg-muted/40 p-4 text-sm">
+            If an account exists for <span className="font-medium">{email}</span>, a reset link is on its way.
+            Check your inbox (and spam folder).
+          </div>
+          <Button variant="outline" className="w-full" onClick={onBack}>Back to sign in</Button>
+        </div>
+      ) : (
+        <form
+          className="space-y-3 mt-6"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setBusy(true);
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+              redirectTo: `${window.location.origin}/reset-password`,
+            });
+            setBusy(false);
+            if (error) toast.error(error.message);
+            else setSent(true);
+          }}
+        >
+          <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+          <Button className="w-full" disabled={busy}>{busy ? "Sending…" : "Send reset link"}</Button>
+          <button type="button" onClick={onBack} className="block w-full text-center text-sm text-muted-foreground hover:text-foreground">
+            Back to sign in
+          </button>
+        </form>
+      )}
+    </div>
   );
 }
 
