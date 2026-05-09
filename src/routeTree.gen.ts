@@ -14,7 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as AppLeadsRouteImport } from './routes/app.leads'
+import { Route as AppLeadsIndexRouteImport } from './routes/app.leads.index'
 import { Route as AppLeadsNewRouteImport } from './routes/app.leads.new'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -42,15 +42,15 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppLeadsRoute = AppLeadsRouteImport.update({
-  id: '/leads',
-  path: '/leads',
+const AppLeadsIndexRoute = AppLeadsIndexRouteImport.update({
+  id: '/leads/',
+  path: '/leads/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLeadsNewRoute = AppLeadsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AppLeadsRoute,
+  id: '/leads/new',
+  path: '/leads/new',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -58,17 +58,17 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app/leads': typeof AppLeadsRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/app/leads/new': typeof AppLeadsNewRoute
+  '/app/leads/': typeof AppLeadsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app/leads': typeof AppLeadsRouteWithChildren
   '/app': typeof AppIndexRoute
   '/app/leads/new': typeof AppLeadsNewRoute
+  '/app/leads': typeof AppLeadsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -76,9 +76,9 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app/leads': typeof AppLeadsRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/app/leads/new': typeof AppLeadsNewRoute
+  '/app/leads/': typeof AppLeadsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,26 +87,26 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/reset-password'
-    | '/app/leads'
     | '/app/'
     | '/app/leads/new'
+    | '/app/leads/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
-    | '/app/leads'
     | '/app'
     | '/app/leads/new'
+    | '/app/leads'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/auth'
     | '/reset-password'
-    | '/app/leads'
     | '/app/'
     | '/app/leads/new'
+    | '/app/leads/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -153,43 +153,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/leads': {
-      id: '/app/leads'
+    '/app/leads/': {
+      id: '/app/leads/'
       path: '/leads'
-      fullPath: '/app/leads'
-      preLoaderRoute: typeof AppLeadsRouteImport
+      fullPath: '/app/leads/'
+      preLoaderRoute: typeof AppLeadsIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/leads/new': {
       id: '/app/leads/new'
-      path: '/new'
+      path: '/leads/new'
       fullPath: '/app/leads/new'
       preLoaderRoute: typeof AppLeadsNewRouteImport
-      parentRoute: typeof AppLeadsRoute
+      parentRoute: typeof AppRoute
     }
   }
 }
 
-interface AppLeadsRouteChildren {
-  AppLeadsNewRoute: typeof AppLeadsNewRoute
-}
-
-const AppLeadsRouteChildren: AppLeadsRouteChildren = {
-  AppLeadsNewRoute: AppLeadsNewRoute,
-}
-
-const AppLeadsRouteWithChildren = AppLeadsRoute._addFileChildren(
-  AppLeadsRouteChildren,
-)
-
 interface AppRouteChildren {
-  AppLeadsRoute: typeof AppLeadsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
+  AppLeadsNewRoute: typeof AppLeadsNewRoute
+  AppLeadsIndexRoute: typeof AppLeadsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppLeadsRoute: AppLeadsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
+  AppLeadsNewRoute: AppLeadsNewRoute,
+  AppLeadsIndexRoute: AppLeadsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

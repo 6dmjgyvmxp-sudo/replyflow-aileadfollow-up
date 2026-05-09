@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Mail, Phone } from "lucide-react";
 import { statusLabel, statusVariant } from "@/lib/leadStatus";
 
-export const Route = createFileRoute("/app/leads")({
+export const Route = createFileRoute("/app/leads/")({
   component: LeadsList,
 });
 
