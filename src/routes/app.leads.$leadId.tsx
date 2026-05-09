@@ -58,7 +58,7 @@ function LeadDetail() {
   const generate = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke("generate-followups", {
-       body: { leadName: lead?.name, leadEmail: lead?.email, notes: lead?.notes },
+       body: { leadName: (lead?.first_name || '') + ' ' + (lead?.last_name || ''), leadEmail: lead?.email, notes: lead?.notes },
       });
       if (error) throw error;
       const items = (data?.emails ?? []) as Array<{ day_offset: number; subject: string; body: string }>;
