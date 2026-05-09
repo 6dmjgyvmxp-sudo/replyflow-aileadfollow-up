@@ -16,7 +16,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppLeadsIndexRouteImport } from './routes/app.leads.index'
 import { Route as AppLeadsNewRouteImport } from './routes/app.leads.new'
-import { Route as AppLeadsLeadIdRouteImport } from './routes/app.leads.$leadId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -53,11 +52,6 @@ const AppLeadsNewRoute = AppLeadsNewRouteImport.update({
   path: '/leads/new',
   getParentRoute: () => AppRoute,
 } as any)
-const AppLeadsLeadIdRoute = AppLeadsLeadIdRouteImport.update({
-  id: '/leads/$leadId',
-  path: '/leads/$leadId',
-  getParentRoute: () => AppRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -67,7 +61,6 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/app/leads/new': typeof AppLeadsNewRoute
   '/app/leads/': typeof AppLeadsIndexRoute
-  '/app/leads/$leadId': typeof AppLeadsLeadIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,7 +69,6 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/leads/new': typeof AppLeadsNewRoute
   '/app/leads': typeof AppLeadsIndexRoute
-  '/app/leads/$leadId': typeof AppLeadsLeadIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,7 +79,6 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/app/leads/new': typeof AppLeadsNewRoute
   '/app/leads/': typeof AppLeadsIndexRoute
-  '/app/leads/$leadId': typeof AppLeadsLeadIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,7 +90,6 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/leads/new'
     | '/app/leads/'
-    | '/app/leads/$leadId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -108,7 +98,6 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/leads/new'
     | '/app/leads'
-    | '/app/leads/$leadId'
   id:
     | '__root__'
     | '/'
@@ -118,7 +107,6 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/leads/new'
     | '/app/leads/'
-    | '/app/leads/$leadId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -179,13 +167,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLeadsNewRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/leads/$leadId': {
-      id: '/app/leads/$leadId'
-      path: '/leads/$leadId'
-      fullPath: '/app/leads/$leadId'
-      preLoaderRoute: typeof AppLeadsLeadIdRouteImport
-      parentRoute: typeof AppRoute
-    }
   }
 }
 
@@ -193,14 +174,12 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppLeadsNewRoute: typeof AppLeadsNewRoute
   AppLeadsIndexRoute: typeof AppLeadsIndexRoute
-  AppLeadsLeadIdRoute: typeof AppLeadsLeadIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppLeadsNewRoute: AppLeadsNewRoute,
   AppLeadsIndexRoute: AppLeadsIndexRoute,
-  AppLeadsLeadIdRoute: AppLeadsLeadIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
