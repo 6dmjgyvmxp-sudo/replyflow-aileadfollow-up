@@ -28,7 +28,7 @@ function LeadsList() {
           <h1 className="text-2xl md:text-3xl font-bold">Leads</h1>
           <p className="text-muted-foreground text-sm">All your leads and follow-up status.</p>
         </div>
-    <Button onClick={() => window.location.href='/app/leads/new'}><Plus className="h-4 w-4 mr-1" /> Add lead</Button>
+        <Button asChild><Link to="/app/leads/new"><Plus className="h-4 w-4 mr-1" /> Add lead</Link></Button>
       </div>
 
       <Card>
@@ -38,8 +38,8 @@ function LeadsList() {
             <p className="text-muted-foreground py-8 text-center">Loading…</p>
           ) : leads.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-             <p>No leads yet.</p>
-<Button className="mt-4" onClick={() => window.location.href='/app/leads/new'}>Add your first lead</Button>
+              <p>No leads yet.</p>
+              <Button asChild className="mt-4"><Link to="/app/leads/new">Add your first lead</Link></Button>
             </div>
           ) : (
             <div className="divide-y">
