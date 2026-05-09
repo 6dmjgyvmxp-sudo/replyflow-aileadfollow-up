@@ -40,6 +40,7 @@ function NewLead() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
