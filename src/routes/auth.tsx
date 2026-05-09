@@ -115,7 +115,7 @@ function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
             e.preventDefault();
             setBusy(true);
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
-              redirectTo: `${window.location.origin}/reset-password`,
+              redirectTo: "https://replyflow-aileadfollow-up.lovable.app/reset-password",
             });
             setBusy(false);
             if (error) toast.error(error.message);
