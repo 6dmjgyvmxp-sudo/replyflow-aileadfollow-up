@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Users, Plus, LogOut, Sparkles } from "lucide-react";
+import { LayoutDashboard, Users, Plus, LogOut, Sparkles, Settings, Shield, CreditCard } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar,
@@ -11,6 +11,9 @@ const items = [
   { title: "Dashboard", url: "/app", icon: LayoutDashboard },
   { title: "Leads", url: "/app/leads", icon: Users },
   { title: "Add lead", url: "/app/leads/new", icon: Plus },
+  { title: "Compliance", url: "/app/compliance", icon: Shield },
+  { title: "Pricing", url: "/app/pricing", icon: CreditCard },
+  { title: "Settings", url: "/app/settings", icon: Settings },
 ];
 
 export function AppSidebar() {

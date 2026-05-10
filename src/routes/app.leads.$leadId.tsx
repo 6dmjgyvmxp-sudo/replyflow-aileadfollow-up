@@ -1,12 +1,15 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Mail, Phone, Sparkles, Send } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ArrowLeft, Mail, Phone, Sparkles, Send, PhoneCall, Flame } from "lucide-react";
 import { statusLabel, statusVariant } from "@/lib/leadStatus";
+import { computeScore, temperatureLabel, temperatureBadgeVariant } from "@/lib/leadScore";
+import { QualifyLead } from "@/components/QualifyLead";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/leads/$leadId")({
@@ -17,7 +20,6 @@ const STATUSES = ["active", "contacted", "closed_won", "closed_lost"] as const;
 
 function LeadDetail() {
   const { leadId } = Route.useParams();
-  const navigate = useNavigate();
   const qc = useQueryClient();
 
   const { data: lead, isLoading } = useQuery({
@@ -42,6 +44,9 @@ function LeadDetail() {
     },
   });
 
+  const score = computeScore(emails);
+  const showCallNow = score >= 75;
+
   const updateStatus = useMutation({
     mutationFn: async (status: string) => {
       const { error } = await supabase.from("leads").update({ status: status as any }).eq("id", leadId);
@@ -57,14 +62,21 @@ function LeadDetail() {
 
   const generate = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("generate-followups", {
-       body: { leadName: (lead?.first_name || '') + ' ' + (lead?.last_name || ''), leadEmail: lead?.email, notes: lead?.notes },
-      });
-      if (error) throw error;
-      const items = (data?.emails ?? []) as Array<{ day_offset: number; subject: string; body: string }>;
       const { data: u } = await supabase.auth.getUser();
       const userId = u.user?.id;
       if (!userId) throw new Error("Not signed in");
+      // Load agent branding for personalization
+      const { data: agent } = await supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle();
+      const { data, error } = await supabase.functions.invoke("generate-followups", {
+        body: {
+          leadName: (lead?.first_name || "") + " " + (lead?.last_name || ""),
+          leadEmail: lead?.email,
+          notes: lead?.notes,
+          agent,
+        },
+      });
+      if (error) throw error;
+      const items = (data?.emails ?? []) as Array<{ day_offset: number; subject: string; body: string }>;
       const rows = items.map((it) => ({ ...it, lead_id: leadId, user_id: userId }));
       const { error: insErr } = await supabase.from("follow_up_emails").insert(rows);
       if (insErr) throw insErr;
@@ -118,7 +130,12 @@ function LeadDetail() {
               {lead.source && <span>· {lead.source}</span>}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="outline" className="font-mono">Score: {score}</Badge>
+            <Badge variant={temperatureBadgeVariant(lead.temperature)}>
+              {lead.temperature === "hot" && <Flame className="h-3 w-3 mr-1" />}
+              {temperatureLabel(lead.temperature)}
+            </Badge>
             <Badge variant={statusVariant(lead.status)}>{statusLabel(lead.status)}</Badge>
             <Select value={lead.status} onValueChange={(v) => updateStatus.mutate(v)}>
               <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
@@ -129,6 +146,16 @@ function LeadDetail() {
           </div>
         </div>
       </div>
+
+      {showCallNow && (
+        <Alert className="border-destructive bg-destructive/5">
+          <PhoneCall className="h-4 w-4 text-destructive" />
+          <AlertTitle className="text-destructive">Call now</AlertTitle>
+          <AlertDescription>
+            This lead has crossed 75 points — they're highly engaged. Pick up the phone before the moment passes.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {lead.notes && (
         <Card>
@@ -169,6 +196,8 @@ function LeadDetail() {
           )}
         </CardContent>
       </Card>
+
+      {emails.length > 0 && <QualifyLead leadId={leadId} />}
     </div>
   );
 }

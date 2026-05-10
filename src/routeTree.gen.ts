@@ -14,6 +14,9 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppComplianceRouteImport } from './routes/app.compliance'
+import { Route as AppPricingRouteImport } from './routes/app.pricing'
 import { Route as AppLeadsIndexRouteImport } from './routes/app.leads.index'
 import { Route as AppLeadsNewRouteImport } from './routes/app.leads.new'
 import { Route as AppLeadsLeadIdRouteImport } from './routes/app.leads.$leadId'
@@ -43,6 +46,21 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppComplianceRoute = AppComplianceRouteImport.update({
+  id: '/compliance',
+  path: '/compliance',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPricingRoute = AppPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppLeadsIndexRoute = AppLeadsIndexRouteImport.update({
   id: '/leads/',
   path: '/leads/',
@@ -65,6 +83,9 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app/': typeof AppIndexRoute
+  '/app/compliance': typeof AppComplianceRoute
+  '/app/pricing': typeof AppPricingRoute
+  '/app/settings': typeof AppSettingsRoute
   '/app/leads/$leadId': typeof AppLeadsLeadIdRoute
   '/app/leads/new': typeof AppLeadsNewRoute
   '/app/leads/': typeof AppLeadsIndexRoute
@@ -74,6 +95,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app': typeof AppIndexRoute
+  '/app/compliance': typeof AppComplianceRoute
+  '/app/pricing': typeof AppPricingRoute
+  '/app/settings': typeof AppSettingsRoute
   '/app/leads/$leadId': typeof AppLeadsLeadIdRoute
   '/app/leads/new': typeof AppLeadsNewRoute
   '/app/leads': typeof AppLeadsIndexRoute
@@ -85,6 +109,9 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app/': typeof AppIndexRoute
+  '/app/compliance': typeof AppComplianceRoute
+  '/app/pricing': typeof AppPricingRoute
+  '/app/settings': typeof AppSettingsRoute
   '/app/leads/$leadId': typeof AppLeadsLeadIdRoute
   '/app/leads/new': typeof AppLeadsNewRoute
   '/app/leads/': typeof AppLeadsIndexRoute
@@ -97,6 +124,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/app/'
+    | '/app/compliance'
+    | '/app/pricing'
+    | '/app/settings'
     | '/app/leads/$leadId'
     | '/app/leads/new'
     | '/app/leads/'
@@ -106,6 +136,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/app'
+    | '/app/compliance'
+    | '/app/pricing'
+    | '/app/settings'
     | '/app/leads/$leadId'
     | '/app/leads/new'
     | '/app/leads'
@@ -116,6 +149,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/app/'
+    | '/app/compliance'
+    | '/app/pricing'
+    | '/app/settings'
     | '/app/leads/$leadId'
     | '/app/leads/new'
     | '/app/leads/'
@@ -165,6 +201,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/compliance': {
+      id: '/app/compliance'
+      path: '/compliance'
+      fullPath: '/app/compliance'
+      preLoaderRoute: typeof AppComplianceRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/pricing': {
+      id: '/app/pricing'
+      path: '/pricing'
+      fullPath: '/app/pricing'
+      preLoaderRoute: typeof AppPricingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/leads/': {
       id: '/app/leads/'
       path: '/leads'
@@ -191,6 +248,9 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
+  AppComplianceRoute: typeof AppComplianceRoute
+  AppPricingRoute: typeof AppPricingRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppLeadsLeadIdRoute: typeof AppLeadsLeadIdRoute
   AppLeadsNewRoute: typeof AppLeadsNewRoute
   AppLeadsIndexRoute: typeof AppLeadsIndexRoute
@@ -198,6 +258,9 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
+  AppComplianceRoute: AppComplianceRoute,
+  AppPricingRoute: AppPricingRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppLeadsLeadIdRoute: AppLeadsLeadIdRoute,
   AppLeadsNewRoute: AppLeadsNewRoute,
   AppLeadsIndexRoute: AppLeadsIndexRoute,
