@@ -45,7 +45,11 @@ Deno.serve(async (req) => {
       .single();
     if (leadErr) throw leadErr;
 
-    const html = email.body
+    const STOP = "Reply STOP to unsubscribe.";
+    const bodyWithFooter = email.body.includes("STOP to unsubscribe")
+      ? email.body
+      : `${email.body.trimEnd()}\n\n${STOP}`;
+    const html = bodyWithFooter
       .split(/\n\n+/)
       .map((p: string) => `<p style="margin:0 0 16px;line-height:1.6">${p.replace(/\n/g, "<br>")}</p>`)
       .join("");
