@@ -67,6 +67,42 @@ export type Database = {
           },
         ]
       }
+      lead_qualification: {
+        Row: {
+          buying_timeframe: string | null
+          created_at: string
+          credit_confidence: number | null
+          id: string
+          lead_id: string
+          spoken_with_lender: boolean | null
+          temperature: Database["public"]["Enums"]["lead_temperature"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          buying_timeframe?: string | null
+          created_at?: string
+          credit_confidence?: number | null
+          id?: string
+          lead_id: string
+          spoken_with_lender?: boolean | null
+          temperature?: Database["public"]["Enums"]["lead_temperature"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          buying_timeframe?: string | null
+          created_at?: string
+          credit_confidence?: number | null
+          id?: string
+          lead_id?: string
+          spoken_with_lender?: boolean | null
+          temperature?: Database["public"]["Enums"]["lead_temperature"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string
@@ -77,8 +113,10 @@ export type Database = {
           name: string
           notes: string | null
           phone: string | null
+          score: number
           source: Database["public"]["Enums"]["lead_source"] | null
           status: Database["public"]["Enums"]["lead_status"]
+          temperature: Database["public"]["Enums"]["lead_temperature"] | null
           updated_at: string
           user_id: string
         }
@@ -91,8 +129,10 @@ export type Database = {
           name: string
           notes?: string | null
           phone?: string | null
+          score?: number
           source?: Database["public"]["Enums"]["lead_source"] | null
           status?: Database["public"]["Enums"]["lead_status"]
+          temperature?: Database["public"]["Enums"]["lead_temperature"] | null
           updated_at?: string
           user_id: string
         }
@@ -105,8 +145,43 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string | null
+          score?: number
           source?: Database["public"]["Enums"]["lead_source"] | null
           status?: Database["public"]["Enums"]["lead_status"]
+          temperature?: Database["public"]["Enums"]["lead_temperature"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          brokerage_name: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          reply_to_email: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          brokerage_name?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          reply_to_email?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          brokerage_name?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          reply_to_email?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -128,6 +203,7 @@ export type Database = {
         | "Cold Call"
         | "Other"
       lead_status: "active" | "closed_won" | "closed_lost" | "contacted"
+      lead_temperature: "hot" | "warm" | "long_term"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -264,6 +340,7 @@ export const Constants = {
         "Other",
       ],
       lead_status: ["active", "closed_won", "closed_lost", "contacted"],
+      lead_temperature: ["hot", "warm", "long_term"],
     },
   },
 } as const
