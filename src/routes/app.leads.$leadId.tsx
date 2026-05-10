@@ -92,55 +92,6 @@ function LeadDetail() {
     onError: (e) => toast.error(e.message),
   });
 
- const generate = useMutation({
-    mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not signed in");
-
-      // Use first/last name, but fall back to the main 'name' column if they are empty
-      const fullName = (lead?.first_name || lead?.last_name) 
-        ? `${lead?.first_name || ''} ${lead?.last_name || ''}`.trim() 
-        : (lead?.name || "Lead");
-
-      const { data, error } = await supabase.functions.invoke("generate-followups", {
-        body: {
-          leadName: fullName,
-          leadEmail: lead?.email,
-          notes: lead?.notes,
-        },
-      });
-
-      if (error) throw error;
-      
-      const items = data?.emails || [];
-      if (items.length === 0) throw new Error("AI returned no emails.");
-
-      const rows = items.map((it: any) => ({
-        lead_id: leadId,
-        user_id: user.id,
-        subject: it.subject,
-        body: it.body,
-        day_offset: it.day_offset,
-        status: "pending"
-      }));
-
-      const { error: insErr } = await supabase.from("follow_up_emails").insert(rows);
-      if (insErr) throw insErr;
-      
-      return data;
-    },
-   onSuccess: async () => {
-      // Force Supabase to sync and the UI to reload the list
-      await qc.invalidateQueries({ queryKey: ["follow_up_emails", leadId] });
-      await qc.refetchQueries({ queryKey: ["follow_up_emails", leadId] });
-      toast.success("Follow-up sequence generated and saved!");
-    },
-    onError: (e: any) => {
-      console.error("Generation Error:", e);
-      toast.error(e.message || "Failed to generate sequence");
-    },
-  });
-  
 
   const sendSequence = useMutation({
     mutationFn: async () => {
