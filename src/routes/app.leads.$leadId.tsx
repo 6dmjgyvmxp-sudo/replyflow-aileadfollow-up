@@ -97,10 +97,10 @@ function LeadDetail() {
       
       return data;
     },
-    onSuccess: () => {
-      // Force a full refresh of the email list and the lead score
-      qc.invalidateQueries({ queryKey: ["follow_up_emails", leadId] });
-      qc.invalidateQueries({ queryKey: ["lead", leadId] });
+   onSuccess: async () => {
+      // Force Supabase to sync and the UI to reload the list
+      await qc.invalidateQueries({ queryKey: ["follow_up_emails", leadId] });
+      await qc.refetchQueries({ queryKey: ["follow_up_emails", leadId] });
       toast.success("Follow-up sequence generated and saved!");
     },
     onError: (e: any) => {
