@@ -107,7 +107,7 @@ function LeadDetail() {
       toast.error(e.message || "Failed to generate sequence");
     },
   });
-  });
+  
 
   const sendSequence = useMutation({
     mutationFn: async () => {
