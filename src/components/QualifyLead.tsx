@@ -51,19 +51,26 @@ export function QualifyLead({ leadId }: { leadId: string }) {
       const userId = u.user?.id;
       if (!userId) throw new Error("Not signed in");
       const temperature = temperatureFromAnswers(timeframe);
-      const payload = {
-        lead_id: leadId,
-        user_id: userId,
-        spoken_with_lender: lender === "yes" ? true : lender === "no" ? false : null,
-        credit_confidence: credit ? parseInt(credit, 10) : null,
-        buying_timeframe: timeframe || null,
-        temperature,
-      };
+     const creditNum = credit ? parseInt(credit, 10) : 0;
+const score = 
+  (lender === "yes" ? 25 : 0) +
+  (creditNum >= 7 ? 25 : creditNum >= 4 ? 10 : 0) +
+  (timeframe === "0-30 days" ? 50 : 
+   timeframe === "31-90 days" ? 25 : 
+   timeframe === "3-6 months" ? 10 : 5);
+
+const payload = {
+  lead_id: leadId,
+  user_id: userId,
+  spoken_with_lender: lender === "yes" ? true : lender === "no" ? false : null,
+  credit_confidence: credit ? parseInt(credit, 10) : null,
+  buying_timeframe: timeframe || null,
+  temperature,
+  score,
+};
       const { error } = await supabase.from("lead_qualification").upsert(payload, { onConflict: "lead_id" });
       if (error) throw error;
-      if (temperature) {
-        await supabase.from("leads").update({ temperature }).eq("id", leadId);
-      }
+     await supabase.from("leads").update({ temperature, score }).eq("id", leadId);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["qualification", leadId] });
