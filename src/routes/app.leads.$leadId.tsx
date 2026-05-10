@@ -62,30 +62,51 @@ function LeadDetail() {
 
   const generate = useMutation({
     mutationFn: async () => {
-      const { data: u } = await supabase.auth.getUser();
-      const userId = u.user?.id;
-      if (!userId) throw new Error("Not signed in");
-      // Load agent branding for personalization
-      const { data: agent } = await supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not signed in");
+
       const { data, error } = await supabase.functions.invoke("generate-followups", {
         body: {
           leadName: (lead?.first_name || "") + " " + (lead?.last_name || ""),
           leadEmail: lead?.email,
           notes: lead?.notes,
-          agent,
         },
       });
+
       if (error) throw error;
-      const items = (data?.emails ?? []) as Array<{ day_offset: number; subject: string; body: string }>;
-      const rows = items.map((it) => ({ ...it, lead_id: leadId, user_id: userId }));
+      
+      // Ensure we are getting the emails array from the AI response
+      const items = data?.emails || [];
+      
+      if (items.length === 0) {
+        throw new Error("AI returned no emails. Please try again.");
+      }
+
+      // Map the AI result to our database structure
+      const rows = items.map((it: any) => ({
+        lead_id: leadId,
+        user_id: user.id,
+        subject: it.subject,
+        body: it.body,
+        day_offset: it.day_offset,
+        status: "pending"
+      }));
+
       const { error: insErr } = await supabase.from("follow_up_emails").insert(rows);
       if (insErr) throw insErr;
+      
+      return data;
     },
     onSuccess: () => {
+      // This tells the page to refresh the email list immediately
       qc.invalidateQueries({ queryKey: ["follow_up_emails", leadId] });
-      toast.success("Follow-up sequence generated");
+      toast.success("Follow-up sequence generated and saved!");
     },
-    onError: (e: any) => toast.error(e.message ?? "Failed to generate"),
+    onError: (e: any) => {
+      console.error("Generation Error:", e);
+      toast.error(e.message || "Failed to generate sequence");
+    },
+  });
   });
 
   const sendSequence = useMutation({
