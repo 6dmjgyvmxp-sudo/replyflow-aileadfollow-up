@@ -25,7 +25,12 @@ function LeadDetail() {
   const { data: lead, isLoading } = useQuery({
     queryKey: ["lead", leadId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("leads").select("*").eq("id", leadId).maybeSingle();
+      // Joining lead_qualification to get the score and status
+      const { data, error } = await supabase
+        .from("leads")
+        .select("*, lead_qualification(*)")
+        .eq("id", leadId)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -44,20 +49,47 @@ function LeadDetail() {
     },
   });
 
-  const score = computeScore(emails);
+  const score = lead?.lead_qualification?.[0]?.score || 0;
   const showCallNow = score >= 75;
 
-  const updateStatus = useMutation({
-    mutationFn: async (status: string) => {
-      const { error } = await supabase.from("leads").update({ status: status as any }).eq("id", leadId);
+  const generate = useMutation({
+    mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not signed in");
+
+      const fullName = (lead?.first_name || lead?.last_name) 
+        ? `${lead?.first_name || ''} ${lead?.last_name || ''}`.trim() 
+        : (lead?.name || "Lead");
+
+      const { data, error } = await supabase.functions.invoke("generate-followups", {
+        body: { leadName: fullName, notes: lead?.notes },
+      });
+
       if (error) throw error;
+      
+      const items = data?.emails || [];
+      if (items.length === 0) throw new Error("AI failed to return emails.");
+
+      const rows = items.map((it: any) => ({
+        lead_id: leadId,
+        user_id: user.id,
+        subject: it.subject,
+        body: it.body,
+        day_offset: it.day_offset,
+        status: "pending"
+      }));
+
+      const { error: insErr } = await supabase.from("follow_up_emails").insert(rows);
+      if (insErr) throw insErr;
+      
+      return data;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["lead", leadId] });
-      qc.invalidateQueries({ queryKey: ["leads"] });
-      toast.success("Status updated");
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["follow_up_emails", leadId] });
+      await qc.refetchQueries({ queryKey: ["follow_up_emails", leadId] });
+      toast.success("Follow-up sequence generated and saved!");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e) => toast.error(e.message),
   });
 
  const generate = useMutation({
