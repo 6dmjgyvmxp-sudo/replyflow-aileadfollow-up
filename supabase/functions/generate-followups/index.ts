@@ -56,7 +56,7 @@ Each body MUST end with the signature block AND the line "Reply STOP to unsubscr
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: system },
           { role: "user", content: user + `\n\nReturn ONLY a valid JSON object with this exact shape, no prose, no markdown:\n{"emails":[{"day_offset":1,"subject":"...","body":"..."},{"day_offset":3,"subject":"...","body":"..."},{"day_offset":7,"subject":"...","body":"..."}]}` },
