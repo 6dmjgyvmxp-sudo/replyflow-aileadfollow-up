@@ -60,14 +60,19 @@ function LeadDetail() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const generate = useMutation({
+ const generate = useMutation({
     mutationFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not signed in");
 
+      // Use first/last name, but fall back to the main 'name' column if they are empty
+      const fullName = (lead?.first_name || lead?.last_name) 
+        ? `${lead?.first_name || ''} ${lead?.last_name || ''}`.trim() 
+        : (lead?.name || "Lead");
+
       const { data, error } = await supabase.functions.invoke("generate-followups", {
         body: {
-          leadName: (lead?.first_name || "") + " " + (lead?.last_name || ""),
+          leadName: fullName,
           leadEmail: lead?.email,
           notes: lead?.notes,
         },
@@ -75,14 +80,9 @@ function LeadDetail() {
 
       if (error) throw error;
       
-      // Ensure we are getting the emails array from the AI response
       const items = data?.emails || [];
-      
-      if (items.length === 0) {
-        throw new Error("AI returned no emails. Please try again.");
-      }
+      if (items.length === 0) throw new Error("AI returned no emails.");
 
-      // Map the AI result to our database structure
       const rows = items.map((it: any) => ({
         lead_id: leadId,
         user_id: user.id,
@@ -98,8 +98,9 @@ function LeadDetail() {
       return data;
     },
     onSuccess: () => {
-      // This tells the page to refresh the email list immediately
+      // Force a full refresh of the email list and the lead score
       qc.invalidateQueries({ queryKey: ["follow_up_emails", leadId] });
+      qc.invalidateQueries({ queryKey: ["lead", leadId] });
       toast.success("Follow-up sequence generated and saved!");
     },
     onError: (e: any) => {
