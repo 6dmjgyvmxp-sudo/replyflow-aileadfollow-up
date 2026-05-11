@@ -25,8 +25,8 @@ Deno.serve(async (req) => {
     const { data: profile } = await supabaseClient
       .from('profiles')
       .select('full_name, phone, brokerage_name, reply_to_email')
-      .eq('id', user?.id)
-      .single();
+      .eq('user_id', user?.id)
+      .maybeSingle();
 
     const agentName = profile?.full_name || "Your Real Estate Partner";
     const agentPhone = profile?.phone || "";
