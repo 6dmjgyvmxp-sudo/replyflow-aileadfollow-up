@@ -66,7 +66,6 @@ const payload = {
   credit_confidence: credit ? parseInt(credit, 10) : null,
   buying_timeframe: timeframe || null,
   temperature,
-  score,
 };
       const { error } = await supabase.from("lead_qualification").upsert(payload, { onConflict: "lead_id" });
       if (error) throw error;
