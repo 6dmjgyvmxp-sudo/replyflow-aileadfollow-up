@@ -1,4 +1,3 @@
-// Shared layout helpers for legal pages.
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
@@ -17,10 +16,10 @@ export function LegalShell({ title, children }: { title: string; children: React
         </div>
       </header>
       <main className="flex-1">
-        <article className="max-w-3xl mx-auto px-6 py-10 prose prose-sm md:prose-base">
+        <article className="max-w-3xl mx-auto px-6 py-10">
           <h1 className="text-3xl font-bold mb-2">{title}</h1>
           <p className="text-sm text-muted-foreground mb-8">Last updated: May 11, 2026</p>
-          {children}
+          <div className="space-y-4 text-base leading-relaxed">{children}</div>
         </article>
       </main>
       <footer className="border-t mt-10">
