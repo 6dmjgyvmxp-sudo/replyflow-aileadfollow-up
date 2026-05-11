@@ -26,7 +26,7 @@ function LeadsList() {
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ["leads"],
     queryFn: async () => {
-     const { data, error } = await supabase.from("leads").select("*, lead_qualification(*)").order("created_at", { ascending: false });
+     const { data, error } = await supabase.from("leads").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -132,11 +132,11 @@ function LeadsList() {
                       </div>
                     </div>
                    <Badge variant="outline" className="font-mono justify-self-start">
-  {lead.lead_qualification?.[0]?.score || 0} pts
-</Badge>
-<Badge variant={temperatureBadgeVariant(lead.lead_qualification?.[0]?.temperature || lead.temperature)}>
-  {temperatureLabel(lead.lead_qualification?.[0]?.temperature || lead.temperature)}
-</Badge>
+                     {lead.score ?? 0} pts
+                   </Badge>
+                   <Badge variant={temperatureBadgeVariant(lead.temperature)}>
+                     {temperatureLabel(lead.temperature)}
+                   </Badge>
                     <span className="text-xs text-muted-foreground">
                       {new Date(lead.created_at).toLocaleDateString()}
                     </span>
