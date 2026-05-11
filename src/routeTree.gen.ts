@@ -9,21 +9,39 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RefundRouteImport } from './routes/refund'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
-import { Route as AppComplianceRouteImport } from './routes/app.compliance'
 import { Route as AppPricingRouteImport } from './routes/app.pricing'
+import { Route as AppComplianceRouteImport } from './routes/app.compliance'
 import { Route as AppLeadsIndexRouteImport } from './routes/app.leads.index'
 import { Route as AppLeadsNewRouteImport } from './routes/app.leads.new'
 import { Route as AppLeadsLeadIdRouteImport } from './routes/app.leads.$leadId'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundRoute = RefundRouteImport.update({
+  id: '/refund',
+  path: '/refund',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -51,14 +69,14 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
-const AppComplianceRoute = AppComplianceRouteImport.update({
-  id: '/compliance',
-  path: '/compliance',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppPricingRoute = AppPricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppComplianceRoute = AppComplianceRouteImport.update({
+  id: '/compliance',
+  path: '/compliance',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLeadsIndexRoute = AppLeadsIndexRouteImport.update({
@@ -81,11 +99,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund': typeof RefundRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app/': typeof AppIndexRoute
+  '/terms': typeof TermsRoute
   '/app/compliance': typeof AppComplianceRoute
   '/app/pricing': typeof AppPricingRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/': typeof AppIndexRoute
   '/app/leads/$leadId': typeof AppLeadsLeadIdRoute
   '/app/leads/new': typeof AppLeadsNewRoute
   '/app/leads/': typeof AppLeadsIndexRoute
@@ -93,11 +114,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund': typeof RefundRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app': typeof AppIndexRoute
+  '/terms': typeof TermsRoute
   '/app/compliance': typeof AppComplianceRoute
   '/app/pricing': typeof AppPricingRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app': typeof AppIndexRoute
   '/app/leads/$leadId': typeof AppLeadsLeadIdRoute
   '/app/leads/new': typeof AppLeadsNewRoute
   '/app/leads': typeof AppLeadsIndexRoute
@@ -107,11 +131,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund': typeof RefundRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app/': typeof AppIndexRoute
+  '/terms': typeof TermsRoute
   '/app/compliance': typeof AppComplianceRoute
   '/app/pricing': typeof AppPricingRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/': typeof AppIndexRoute
   '/app/leads/$leadId': typeof AppLeadsLeadIdRoute
   '/app/leads/new': typeof AppLeadsNewRoute
   '/app/leads/': typeof AppLeadsIndexRoute
@@ -122,11 +149,14 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
+    | '/privacy'
+    | '/refund'
     | '/reset-password'
-    | '/app/'
+    | '/terms'
     | '/app/compliance'
     | '/app/pricing'
     | '/app/settings'
+    | '/app/'
     | '/app/leads/$leadId'
     | '/app/leads/new'
     | '/app/leads/'
@@ -134,11 +164,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/privacy'
+    | '/refund'
     | '/reset-password'
-    | '/app'
+    | '/terms'
     | '/app/compliance'
     | '/app/pricing'
     | '/app/settings'
+    | '/app'
     | '/app/leads/$leadId'
     | '/app/leads/new'
     | '/app/leads'
@@ -147,11 +180,14 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
+    | '/privacy'
+    | '/refund'
     | '/reset-password'
-    | '/app/'
+    | '/terms'
     | '/app/compliance'
     | '/app/pricing'
     | '/app/settings'
+    | '/app/'
     | '/app/leads/$leadId'
     | '/app/leads/new'
     | '/app/leads/'
@@ -161,16 +197,40 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RefundRoute: typeof RefundRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund': {
+      id: '/refund'
+      path: '/refund'
+      fullPath: '/refund'
+      preLoaderRoute: typeof RefundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -201,11 +261,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/compliance': {
-      id: '/app/compliance'
-      path: '/compliance'
-      fullPath: '/app/compliance'
-      preLoaderRoute: typeof AppComplianceRouteImport
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/pricing': {
@@ -215,11 +275,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPricingRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/settings': {
-      id: '/app/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
+    '/app/compliance': {
+      id: '/app/compliance'
+      path: '/compliance'
+      fullPath: '/app/compliance'
+      preLoaderRoute: typeof AppComplianceRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/leads/': {
@@ -247,20 +307,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
-  AppIndexRoute: typeof AppIndexRoute
   AppComplianceRoute: typeof AppComplianceRoute
   AppPricingRoute: typeof AppPricingRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppIndexRoute: typeof AppIndexRoute
   AppLeadsLeadIdRoute: typeof AppLeadsLeadIdRoute
   AppLeadsNewRoute: typeof AppLeadsNewRoute
   AppLeadsIndexRoute: typeof AppLeadsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppIndexRoute: AppIndexRoute,
   AppComplianceRoute: AppComplianceRoute,
   AppPricingRoute: AppPricingRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppIndexRoute: AppIndexRoute,
   AppLeadsLeadIdRoute: AppLeadsLeadIdRoute,
   AppLeadsNewRoute: AppLeadsNewRoute,
   AppLeadsIndexRoute: AppLeadsIndexRoute,
@@ -272,8 +332,21 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
+  PrivacyRoute: PrivacyRoute,
+  RefundRoute: RefundRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
