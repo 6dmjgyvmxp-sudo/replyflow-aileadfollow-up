@@ -25,10 +25,9 @@ function LeadDetail() {
   const { data: lead, isLoading } = useQuery({
     queryKey: ["lead", leadId],
     queryFn: async () => {
-      // Joining lead_qualification to get the score and status
       const { data, error } = await supabase
         .from("leads")
-        .select("*, lead_qualification(*)")
+        .select("*")
         .eq("id", leadId)
         .maybeSingle();
       if (error) throw error;
@@ -49,7 +48,7 @@ function LeadDetail() {
     },
   });
 
-  const score = lead?.lead_qualification?.[0]?.score || 0;
+  const score = lead?.score ?? 0;
   const showCallNow = score >= 75;
 
   const generate = useMutation({
@@ -92,6 +91,18 @@ function LeadDetail() {
     onError: (e) => toast.error(e.message),
   });
 
+  const updateStatus = useMutation({
+    mutationFn: async (status: string) => {
+      const { error } = await supabase.from("leads").update({ status: status as any }).eq("id", leadId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["lead", leadId] });
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      toast.success("Status updated");
+    },
+    onError: (e: any) => toast.error(e.message ?? "Failed to update"),
+  });
 
   const sendSequence = useMutation({
     mutationFn: async () => {
